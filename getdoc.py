@@ -34,14 +34,14 @@ import re
 import subprocess
 import sys
 import tempfile
-import urllib
+import time
 from urllib import request
 from urllib.parse import urljoin
 import zipfile
 
 try:
     from bs4 import BeautifulSoup, NavigableString, Comment
-except:
+except ImportError:
     print('[!] Can\'t import BeautifulSoup; run with --setup to try to automatically install it on Ubuntu.')
     bs4 = None
 
@@ -134,7 +134,7 @@ def getdoc(url, filename=None, workdir='.'):
     cdiv = bs.find('article') \
             or bs.find('div', {'class':re.compile('^(post|(inner-|main_)content)$')}) \
             or bs.find('div', {'class':re.compile('^content$')}) \
-            or bs.find('div', {'id':re.compile('^(content|gist-pjax-container)$')})   ## keep this generic one last
+            or bs.find('div', {'id':re.compile('^(content|gist-pjax-container)$')})   # keep this generic one last
     if cdiv:
         print('[*] Found content entry (%s/#%s/.%s)...' % (cdiv.name, cdiv.get('id'), cdiv.get('class')))
         cdiv.name = 'body'
@@ -209,7 +209,7 @@ def getdoc(url, filename=None, workdir='.'):
     rm_by_attr(obs, 'div', 'id', 'respondcon')
     ## wiki*pedia
     for tag in obs.find_all(attrs={'class':re.compile(
-                '^(mw-(jump|editsection)|navbar|noprint|navigation|share-button|bottom-notice)$')}):
+            '^(mw-(jump|editsection)|navbar|noprint|navigation|share-button|bottom-notice)$')}):
         # print('DEL/cls: %s' % str(tag)[:50])
         tag.decompose()
     ## wikia
