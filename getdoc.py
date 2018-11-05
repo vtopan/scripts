@@ -36,7 +36,7 @@ import sys
 import tempfile
 import time
 from urllib import request
-from urllib.parse import urljoin
+from urllib.parse import urljoin, urlparse
 import zipfile
 
 try:
@@ -289,6 +289,11 @@ def getdoc(url, filename=None, workdir='.'):
                 subprocess.call('exiftool -jfif:Xresolution=72 -jfif:Yresolution=72 -jfif:ResolutionUnit=inch %s'
                     % imgfull, shell=True)
                 os.remove('%s_original' % imgfull)
+    ### add source link to document
+    footer = BeautifulSoup('<p style="font-size: 80%"><i color="#888">[getdoc]</i>'
+            f'Retrieved @ {time.strftime("%d.%m.%Y")} from <a href="{url}">{urlparse(url).netloc}</a></p>', 'lxml')
+    obs.body.append(footer)
+    ### produce output file
     htmlfn = os.path.join(workdir, 'index.html')    # must be index.html for MHT!
     rawtext = obs.prettify(formatter='html').encode('utf8')
     open(htmlfn, 'wb').write(rawtext)
