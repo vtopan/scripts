@@ -254,6 +254,7 @@ def getdoc(url, filename=None, workdir='.'):
         filename = clean_fn(obs.head.title.string) + ext
         print('[*] Guessed filename: %s' % filename)
     ## retrieve images
+    tryfilecmd = 1
     for i, t in enumerate(obs.find_all('img')):
         if not t.get('src'):
             t.extract()
@@ -283,12 +284,16 @@ def getdoc(url, filename=None, workdir='.'):
         t['src'] = imgfn
         imgfull = os.path.join(workdir, imgfn)
         open(imgfull, 'wb').write(imgdata)
-        if ext == 'jpg':
-            out = subprocess.check_output('file "%s"' % imgfull, shell=True)
-            if b'DPI' not in out:
-                subprocess.call('exiftool -jfif:Xresolution=72 -jfif:Yresolution=72 -jfif:ResolutionUnit=inch %s'
-                    % imgfull, shell=True)
-                os.remove('%s_original' % imgfull)
+        if ext == 'jpg' and tryfilecmd:
+            try:
+                out = subprocess.check_output('file "%s"' % imgfull, shell=True)
+                if b'DPI' not in out:
+                    subprocess.call('exiftool -jfif:Xresolution=72 -jfif:Yresolution=72 -jfif:ResolutionUnit=inch %s'
+                        % imgfull, shell=True)
+                    os.remove('%s_original' % imgfull)
+            except subprocess.CalledProcessError as e:
+                print(f'[!] WARNING: failed running the file/exiftool commands: {e}')
+                tryfilecmd = 0
     ### add source link to document
     footer = BeautifulSoup('<p style="font-size: 80%"><i color="#888">[getdoc]</i>'
             f'Retrieved @ {time.strftime("%d.%m.%Y")} from <a href="{url}">{urlparse(url).netloc}</a></p>', 'lxml')
