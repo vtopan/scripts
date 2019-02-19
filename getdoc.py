@@ -134,7 +134,7 @@ def getdoc(url, filename=None, workdir='.'):
     cdiv = bs.find('article') \
             or bs.find('div', {'class':re.compile('^(post|(inner-|main_)content)$')}) \
             or bs.find('div', {'class':re.compile('^content$')}) \
-            or bs.find('div', {'id':re.compile('^(content|gist-pjax-container)$')})   # keep this generic one last
+            or bs.find('div', {'id':re.compile('^((body)?contents?|gist-pjax-container)$')})   # keep this generic one last
     if cdiv:
         print('[*] Found content entry (%s/#%s/.%s)...' % (cdiv.name, cdiv.get('id'), cdiv.get('class')))
         cdiv.name = 'body'
@@ -218,6 +218,10 @@ def getdoc(url, filename=None, workdir='.'):
     ## gist
     rm_by_attr(obs, 'div', 'class', ['gist-file-navigation', 'js-header-wrapper', 'js-discussion'])
     rm_by_attr(obs, 'a', 'class', 'float-right')
+    ## wikihow
+    rm_by_attr(obs, 'p', 'id', 'method_toc')
+    rm_by_attr(obs, 'div', 'class', ['relatedwikihows', 's-help-wrap', 'qa_answer_footer', 'qa_question_tab', 'qa_answerer_info'])
+    rm_by_attr(obs, 'div', 'id', ['qa_ask_heading', 'sp_icon_hover', 'uci_section', 'article_info_section'])
     ## misc
     rm_by_attr(obs, 'div', 'id', 'comment_form')     # core sec blog
     for tag in obs.find_all(attrs={'id':re.compile('sidebar')}):
