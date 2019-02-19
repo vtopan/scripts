@@ -343,10 +343,12 @@ def getdoc(url, filename=None, workdir='.'):
                     part['Content-Type'] = mt
             msg.attach(part)
         open(filename, 'wb').write(msg.as_bytes())
-    elif ext in ('pdf', 'epub', 'rtf', 'docx', 'odt'):
+    elif ext in ('pdf', 'epub', 'rtf', 'docx', 'odt', 'md'):
         xargs = []
         if ext == 'pdf':
             xargs = ['--pdf-engine=xelatex', '-V', 'geometry:paperwidth=210mm,paperheight=297mm,margin=1.5cm']
+        elif ext == 'md':
+            xargs = ['-f', 'html-native_divs-native_spans', '--columns=100']
         fn = os.path.abspath(filename)
         print('[*] Generating %s with pandoc...' % ext)
         subprocess.call(['pandoc', '-s', htmlfn, '-o', fn] + xargs, cwd=workdir)
