@@ -1,0 +1,119 @@
+#!/bin/bash
+# Git wrapper
+# Author: Vlad Topan (vtopan/gmail)
+# Version: 0.1.2 (2019.07.19)
+
+case "$1" in
+    "a")
+        shift
+        git add $*
+        ;;
+    "ac")
+        # git add and amend commit
+        git add $2 && git commit --amend
+        ;;
+    "am")
+        # git amend
+        git commit --amend
+        ;;
+    "b")
+        git branch --color=always|cat -n
+       ;;
+    "c")
+        git commit -m "$2"
+        ;;
+    "cd")
+        git clone --depth=1 "$2"
+        ;;
+    "co")
+        if [[ "$2" =~ [0-9]+ ]]; then
+            arg=`git branch|head -$2|tail -1|xargs`
+            echo "[branch $2:$arg]"
+1        else
+            arg=$2
+        fi
+        git checkout $arg
+        ;;
+    "d")
+        git diff
+        ;;
+    "gc")
+        git grep "$2" $(git rev-list --all)
+        ;;
+    "gl")
+        git log --all --grep="$2"
+        ;;
+    "i")
+        echo "=== Branches ==="
+        $0 b|cat -n
+        echo "=== Status ==="
+        $0 s
+        echo "=== Log ==="
+        $0 l|head -n 3
+        ;;
+    "l")
+        git log --oneline --color=always
+        ;;
+    "p")
+        git pull
+        ;;
+    "pp")
+        git pull
+        git push
+        ;;
+    "P")
+        git push
+        ;;
+    "s")
+        git status -s
+        ;;
+    "sc"|"Sc")
+        git stash clear
+        ;;
+    "sh"|"S")
+        git stash
+        ;;
+    "sp"|"Sp")
+        git stash pop
+        ;;
+    "t")
+        git diff --cached
+        ;;
+    "u")
+        git reset HEAD~
+        ;;
+    "U")
+        git log --branches --not --remotes
+        ;;
+    "?")
+        git show $2
+        ;;
+    *)
+        echo "git wrapper
+
+    ?           git show (follow by commit # etc.)
+    ac file     git add and amend commit
+    a           git add
+    am          git amend
+    b branch    git branch
+    c msg       git commit
+    cd url      git clone (depth==1)
+    co br|nr    git checkout by branch or branch number
+    d           git diff
+    gc          grep commits
+    gl          grep log
+    i           show info (branch, status, log)
+    l           git log (oneline)
+    p           git pull
+    pp          git pull, then push
+    P           git push
+    Sc          git stash clear (aka 'gt sc')
+    S           git stash (aka 'gt sh')
+    s           git status -s
+    Sp          git stash pop (aka 'gt sp')
+    t           git diff --cached (staged changes)
+    u           git reset HEAD~ (undo last commit)
+    U           show unpushed commits
+"
+        ;;
+esac
